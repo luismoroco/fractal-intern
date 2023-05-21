@@ -1,9 +1,6 @@
 package com.fractal.challenge.controller;
 
-import com.fractal.challenge.model.Order;
-import com.fractal.challenge.model.OrderRequest;
-import com.fractal.challenge.model.Product;
-import com.fractal.challenge.model.iPair;
+import com.fractal.challenge.model.*;
 import com.fractal.challenge.repository.OrderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -88,6 +85,30 @@ public class OrderController {
             return orderRepository.save(cartFound);
         } catch (NoSuchElementException e) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Item not found with ID: " + id, e);
+        }
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @PutMapping("/status/{id}")
+    Order setStatus(@PathVariable String id, @RequestBody NewState<Character> newState) {
+
+        /**
+         * P(Progress), I(In Progress), C(Completed)
+         * */
+
+        try {
+            Order cartFound = orderRepository
+                    .findById(id)
+                    .orElseThrow(NoSuchElementException::new);
+
+            if (cartFound.getStatus() == 'C') {
+                throw new ResponseStatusException(HttpStatus.OK, "Cart exist, but is Completed!");
+            }
+
+            cartFound.setStatus(newState.getNewState());
+            return orderRepository.save(cartFound);
+        } catch (NoSuchElementException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Cart not found with ID: " + id, e);
         }
     }
 }

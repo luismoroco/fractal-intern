@@ -111,4 +111,18 @@ public class OrderController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Cart not found with ID: " + id, e);
         }
     }
+
+    @ResponseStatus(HttpStatus.ACCEPTED)
+    @DeleteMapping("{id}")
+    void delete(@PathVariable String id) {
+        try {
+            Order itemFound = orderRepository
+                    .findById(id)
+                    .orElseThrow(NoSuchElementException::new);
+
+            orderRepository.delete(itemFound);
+        } catch (NoSuchElementException e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Item not found with ID: " + id, e);
+        }
+    }
 }
